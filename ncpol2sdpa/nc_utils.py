@@ -10,10 +10,7 @@ Created on Thu May  2 16:03:05 2013
 from __future__ import division, print_function
 from sympy import adjoint, conjugate, S, Symbol, Pow, Number, expand, I
 from sympy.physics.quantum import HermitianOperator, Operator
-try:
-    from scipy.sparse import lil_matrix
-except ImportError:
-    from .sparse_utils import lil_matrix
+from scipy.sparse import lil_matrix
 
 
 def flatten(lol):
@@ -681,3 +678,17 @@ def is_adjoint(exp):
 
 def is_hermitian(exp):
     return exp.is_hermitian or (exp.is_hermitian is None and exp.is_complex)
+
+
+def flip_sign(exp):
+    if isinstance(exp, str):
+        if not exp.startswith("+") and not exp.startswith("+"):
+            tmp = "+" + exp
+        else:
+            tmp = exp
+        tmp = tmp.replace("+", "p")
+        tmp = tmp.replace("-", "+")
+        tmp = tmp.replace("p", "-")
+        return tmp
+    else:
+        return -exp

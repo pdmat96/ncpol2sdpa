@@ -9,7 +9,7 @@ except ImportError:
     from distutils.core import setup
 setup(
     name='ncpol2sdpa',
-    version='1.12.2',
+    version='1.12.3',
     author='Peter Wittek',
     author_email='peterwittek@users.noreply.github.com',
     packages=['ncpol2sdpa'],
@@ -29,15 +29,16 @@ setup(
     classifiers=[
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Scientific/Engineering :: Physics',
         'Intended Audience :: Science/Research',
         'Programming Language :: Python'
     ],
     install_requires=[
-        "sympy >= 0.7.2",
-        "numpy"
+        "sympy >= 1.0",
+        "numpy",
+        "scipy"
     ],
     test_suite="tests"
 )
