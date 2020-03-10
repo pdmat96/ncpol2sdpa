@@ -1099,15 +1099,20 @@ class SdpRelaxation(Relaxation):
         if extraobjexpr is not None:
             for sub_expr in extraobjexpr.split(']'):
                 startindex = 0
+                asterix_position = -1
                 if sub_expr.startswith('-') or sub_expr.startswith('+'):
-                    startindex = 1
+                    asterix_position = sub_expr.find('*')
+                    if asterix_position > -1:
+                        startindex = asterix_position + 1
+                    else:
+                        startindex = 1
                 ind = sub_expr.find('[')
                 if ind > -1:
                     idx = sub_expr[ind+1:].split(",")
                     i, j = int(idx[0]), int(idx[1])
                     mm_ind = int(sub_expr[startindex:ind])
-                    if sub_expr.find('*') > -1:
-                        value = float(sub_expr[:sub_expr.find('*')])
+                    if asterix_position > -1:
+                        value = float(sub_expr[:asterix_position])
                     elif sub_expr.startswith('-'):
                         value = -1.0
                     else:
