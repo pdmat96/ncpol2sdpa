@@ -223,21 +223,27 @@ def fast_substitute(monomial, old_sub, new_sub):
     :param old_sub: The part to be replaced.
     :param new_sub: The replacement.
     """
+    # If monomial is number -> nothing to do
     if is_number_type(monomial):
         return monomial
+    # If polynomial then apply to each term in sum
     if monomial.is_Add:
         return sum([fast_substitute(element, old_sub, new_sub) for element in
                     monomial.as_ordered_terms()])
 
+    # Split the monomial into its factors (commutative separated)
     comm_factors, ncomm_factors = split_commutative_parts(monomial)
+    # Split the part to be substituted into factors
     old_comm_factors, old_ncomm_factors = split_commutative_parts(old_sub)
     # This is a temporary hack
+    # If the new_part is not a number then get its commutative parts
     if not isinstance(new_sub, (int, float, complex)):
         new_comm_factors, _ = split_commutative_parts(new_sub)
     else:
         new_comm_factors = [new_sub]
     comm_monomial = 1
     is_constant_term = False
+    # If we have commutative variables then deal with them here
     if comm_factors != ():
         if len(comm_factors) == 1 and is_number_type(comm_factors[0]):
             is_constant_term = True
@@ -281,64 +287,102 @@ def fast_substitute(monomial, old_sub, new_sub):
                                                        comm_new_sub)
     if ncomm_factors == () or old_ncomm_factors == ():
         return comm_monomial
+
     # old_factors = old_sub.as_ordered_factors()
     # factors = monomial.as_ordered_factors()
+    # Now dealing with the non_comm factors
     new_var_list = []
     new_monomial = 1
     left_remainder = 1
     right_remainder = 1
+    # ncomm_factors -- factors of the monomial
+    # old_ncomm_factors -- factors of the part to be substituted
+    # We move through the monomial, checking that the substituted part
+    # lines up with some part of the monomial (if it does then we substitute)
     for i in range(len(ncomm_factors) - len(old_ncomm_factors) + 1):
         for j, old_ncomm_factor in enumerate(old_ncomm_factors):
             ncomm_factor = ncomm_factors[i + j]
+            # If monomial factor is Symbol AND
+            # [sub_part is not symbol or the same symbol then move to next mono_part]
             if isinstance(ncomm_factor, Symbol) and \
                 (isinstance(old_ncomm_factor, Operator) or
                  (isinstance(old_ncomm_factor, Symbol) and
                   ncomm_factor != old_ncomm_factor)):
+                left_remainder, right_remainder = 1, 1
                 break
+            # If monomial fact is Operator AND
+            # [sub_part is not operator or not same operator then move to next mono_part]
             if isinstance(ncomm_factor, Operator) and \
                     ((isinstance(old_ncomm_factor, Operator) and
                       ncomm_factor != old_ncomm_factor) or
                      isinstance(old_ncomm_factor, Pow)):
+                left_remainder, right_remainder = 1, 1
                 break
+            # If mono_part is daggered:
+            #   if sub is not daggered or doesnt equal mono_part then move to next mono_part
             if is_adjoint(ncomm_factor):
                 if not is_adjoint(old_ncomm_factor) or \
                          ncomm_factor != old_ncomm_factor:
+                    left_remainder, right_remainder = 1, 1
                     break
+            # If mono_part is not adjoint
             else:
+                # if mono_part is not a pow  but sub_point is adjoint then move to next mono_part
                 if not isinstance(ncomm_factor, Pow):
                     if is_adjoint(old_ncomm_factor):
+                        left_remainder, right_remainder = 1, 1
                         break
+                # if mono_part is a pow
                 else:
+                    # if sub_part is also a pow  then split the base and exponent
                     if isinstance(old_ncomm_factor, Pow):
                         old_base = old_ncomm_factor.base
                         old_degree = old_ncomm_factor.exp
                     else:
                         old_base = old_ncomm_factor
                         old_degree = 1
+                    # If the bases don't match then move to next mono part
                     if old_base != ncomm_factor.base:
+                        left_remainder, right_remainder = 1, 1
                         break
+                    # If the exponent of sub part is too large then move to next mono_part
                     if old_degree > ncomm_factor.exp:
+                        left_remainder, right_remainder = 1, 1
                         break
+                    # If the exponent of sub_part is smaller than the monomial part
                     if old_degree < ncomm_factor.exp:
+                        # if we are not at the last factor of sub_part
                         if j != len(old_ncomm_factors) - 1:
+                            # neither last or first factor then sub doesn't fit and break
                             if j != 0:
+                                left_remainder, right_remainder = 1, 1
                                 break
+                            # We must now be the left-most factor of sub
+                            # So we can potentially sub in with some remainer to the left
                             else:
                                 left_remainder = old_base ** (
                                     ncomm_factor.exp - old_degree)
+                        # if we are the last factor then we can sub in with remainer to the right
                         else:
                             right_remainder = old_base ** (
                                 ncomm_factor.exp - old_degree)
+        # This else is executed after the inner-loop has been exhausted (no break)
+        # This should only happen if we find a match for the substitution
         else:
             new_monomial = 1
+            # All parts of mono up to the substituted bit
             for var in new_var_list:
                 new_monomial *= var
+            print(new_monomial, left_remainder, new_sub, right_remainder)
             new_monomial *= left_remainder * new_sub * right_remainder
             for j in range(i + len(old_ncomm_factors), len(ncomm_factors)):
                 new_monomial *= ncomm_factors[j]
             new_monomial *= comm_monomial
             break
+        # Each time we broke out of the inner loop we found another part
+        # of the monomial that will not be substituted. Add it to the new_var_list
         new_var_list.append(ncomm_factors[i])
+    # We broke out of the outer loop
     else:
         if not is_constant_term and comm_factors != ():
             new_monomial = comm_monomial
