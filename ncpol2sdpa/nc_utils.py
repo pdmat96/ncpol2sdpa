@@ -373,7 +373,6 @@ def fast_substitute(monomial, old_sub, new_sub):
             # All parts of mono up to the substituted bit
             for var in new_var_list:
                 new_monomial *= var
-            print(new_monomial, left_remainder, new_sub, right_remainder)
             new_monomial *= left_remainder * new_sub * right_remainder
             for j in range(i + len(old_ncomm_factors), len(ncomm_factors)):
                 new_monomial *= ncomm_factors[j]
