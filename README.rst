@@ -1,3 +1,9 @@
+Updating ncpol2sdpa after Peter Wittek
+==========
+Peter Wittek sadly went missing in September 2019 during a mountaineering expedition. 
+
+I have been a frequent user of this great noncommutative polynomial optimization package ncpol2sdpa. As such I would like to try to maintain the package for future users and will update this fork with any major bugs I find/fix.
+
 Ncpol2sdpa
 ==========
 Ncpol2sdpa solves global polynomial optimization problems of either commutative variables or noncommutative operators through a semidefinite programming (SDP) relaxation. The optimization problem can be unconstrained or constrained by equalities and inequalities, and also by constraints on the moments. The objective is to be able to solve large scale optimization problems. Example applications include:
