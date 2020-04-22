@@ -2,7 +2,7 @@ Updating ncpol2sdpa after Peter Wittek
 ==========
 Peter Wittek sadly went missing in September 2019 during a mountaineering expedition. 
 
-I have been a frequent user of this great noncommutative polynomial optimization package ncpol2sdpa. As such I would like to try to maintain the package for future users and will update this fork with any major bugs I find/fix.
+I have been a frequent user of his great noncommutative polynomial optimization package ncpol2sdpa. As such I would like to try to maintain the package for future users and will update this fork with any major bugs I find/fix.
 
 Ncpol2sdpa
 ==========
