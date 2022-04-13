@@ -33,6 +33,7 @@ def solve_with_cvxpy(sdp, solverparameters=None):
     else:
         status = "optimal"
         x_pre = sdp.F[:, 1:sdp.n_vars+1].dot(problem.variables()[0].value)
+        x_pre = x_pre.reshape(x_pre.shape + (1,))
         x_pre += sdp.F[:, 0]
         row_offsets = [0]
         cumulative_sum = 0
